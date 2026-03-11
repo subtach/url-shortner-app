@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 import { Navbar } from '@/components/navbar'
 import { MediaViewer } from '@/components/media-viewer'
 import { resolveMediaShortCode } from '@/lib/api'
@@ -7,9 +8,16 @@ interface MediaViewPageProps {
   params: Promise<{ shortCode: string }>
 }
 
+async function getBaseUrl(): Promise<string> {
+  const hdrs = await headers()
+  const host = hdrs.get('host') || 'localhost:3000'
+  const proto = hdrs.get('x-forwarded-proto') || 'http'
+  return `${proto}://${host}`
+}
+
 export async function generateMetadata({ params }: MediaViewPageProps) {
   const { shortCode } = await params
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const baseUrl = await getBaseUrl()
   const result = await resolveMediaShortCode(shortCode, baseUrl)
   if (!result.success || !result.data) return {}
   return {
@@ -22,7 +30,7 @@ export async function generateMetadata({ params }: MediaViewPageProps) {
 
 export default async function MediaViewPage({ params }: MediaViewPageProps) {
   const { shortCode } = await params
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const baseUrl = await getBaseUrl()
 
   const result = await resolveMediaShortCode(shortCode, baseUrl)
 

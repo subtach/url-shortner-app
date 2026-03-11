@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 import { Navbar } from '@/components/navbar'
 import { PasteViewer } from '@/components/paste-viewer'
 import { resolvePasteShortCode } from '@/lib/api'
@@ -7,10 +8,16 @@ interface PasteViewPageProps {
   params: Promise<{ shortCode: string }>
 }
 
+async function getBaseUrl(): Promise<string> {
+  const hdrs = await headers()
+  const host = hdrs.get('host') || 'localhost:3000'
+  const proto = hdrs.get('x-forwarded-proto') || 'http'
+  return `${proto}://${host}`
+}
+
 export async function generateMetadata({ params }: PasteViewPageProps) {
   const { shortCode } = await params
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const baseUrl = await getBaseUrl()
   const result = await resolvePasteShortCode(shortCode, baseUrl)
   if (!result.success || !result.data) return {}
   return {
@@ -23,8 +30,7 @@ export async function generateMetadata({ params }: PasteViewPageProps) {
 
 export default async function PasteViewPage({ params }: PasteViewPageProps) {
   const { shortCode } = await params
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+  const baseUrl = await getBaseUrl()
 
   const result = await resolvePasteShortCode(shortCode, baseUrl)
 

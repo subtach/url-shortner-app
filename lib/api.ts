@@ -257,7 +257,7 @@ function rowToMedia(row: import('@libsql/client').Row, baseUrl: string): MediaSh
     sizeBytes: rowNum(row, 'size_bytes'),
     shortCode,
     shortUrl: `${baseUrl}/media/${shortCode}`,
-    rawUrl: `${baseUrl}/api/media/${shortCode}/raw`,
+    rawUrl: `/api/media/${shortCode}/raw`,
     title: rowStrNull(row, 'title'),
     clicks: rowNum(row, 'clicks'),
     createdAt: rowStr(row, 'created_at'),
