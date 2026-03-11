@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Pastel flat theme */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 17%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 17%;
+    --primary: 213 55% 78%;
+    --primary-foreground: 0 0% 17%;
+    --secondary: 300 30% 78%;
+    --secondary-foreground: 0 0% 17%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 162 38% 81%;
+    --accent-foreground: 0 0% 17%;
+    --destructive: 0 60% 70%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 213 55% 78%;
+    --radius: 0.5rem;
+    --highlight: 33 100% 82%;
+    --highlight-foreground: 0 0% 17%;
+    --expired: 0 60% 70%;
+    --expired-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 220 15% 10%;
+    --foreground: 0 0% 92%;
+    --card: 220 15% 13%;
+    --card-foreground: 0 0% 92%;
+    --popover: 220 15% 13%;
+    --popover-foreground: 0 0% 92%;
+    --primary: 213 45% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 300 25% 50%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 12% 18%;
+    --muted-foreground: 0 0% 58%;
+    --accent: 162 30% 45%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 55% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 10% 20%;
+    --input: 220 10% 20%;
+    --ring: 213 45% 55%;
+    --highlight: 33 80% 55%;
+    --highlight-foreground: 0 0% 100%;
+    --expired: 0 55% 55%;
+    --expired-foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
