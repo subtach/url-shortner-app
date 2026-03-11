@@ -3,7 +3,9 @@ import * as QRCode from 'qrcode'
 
 /**
  * GET /api/qr?url=<encoded-url>&size=300
- * Returns a QR code as a PNG image for the given URL.
+ * Returns a QR code as an SVG image for the given URL.
+ * Uses SVG output (pure JS) instead of PNG (which requires native canvas bindings
+ * unavailable in serverless/Netlify Functions environments).
  * - url   (required): the URL to encode
  * - size  (optional): output size in pixels, clamped 100–1000, default 300
  */
@@ -27,22 +29,22 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const pngBuffer = await QRCode.toBuffer(url, {
+        // toString('svg') is pure JavaScript — no native canvas bindings needed.
+        // This works correctly in Netlify Functions and all serverless environments.
+        const svgString = await QRCode.toString(url, {
+            type: 'svg',
             width: size,
             margin: 2,
             color: { dark: '#2B2B2B', light: '#FFFFFF' },
             errorCorrectionLevel: 'M',
         })
 
-        // Convert Node.js Buffer → Uint8Array so it is assignable to NextResponse BodyInit
-        const body = new Uint8Array(pngBuffer.buffer, pngBuffer.byteOffset, pngBuffer.byteLength)
-
-        return new NextResponse(body, {
+        return new NextResponse(svgString, {
             status: 200,
             headers: {
-                'Content-Type': 'image/png',
+                'Content-Type': 'image/svg+xml',
                 'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
-                'Content-Disposition': 'inline; filename="qr.png"',
+                'Content-Disposition': 'inline; filename="qr.svg"',
             },
         })
     } catch (err) {
