@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Link2 } from 'lucide-react'
+import { Code2, ImageIcon, Link2 } from 'lucide-react'
 import { ThemeToggle } from './theme-toggle'
 
 export function Navbar() {
@@ -31,6 +31,28 @@ export function Navbar() {
             }`}
           >
             Home
+          </Link>
+          <Link
+            href="/paste"
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              pathname.startsWith('/paste')
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            }`}
+          >
+            <Code2 className="h-3.5 w-3.5" />
+            Paste Code
+          </Link>
+          <Link
+            href="/media"
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              pathname.startsWith('/media')
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            }`}
+          >
+            <ImageIcon className="h-3.5 w-3.5" />
+            Media Share
           </Link>
           <Link
             href="/dashboard"

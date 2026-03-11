@@ -43,7 +43,7 @@ export function rowNum(row: Row, col: string): number {
 export async function initDb(): Promise<void> {
   const db = getDb()
 
-  // Create table + index if they don't exist yet
+  // Create tables + indexes if they don't exist yet
   await db.executeMultiple(`
     CREATE TABLE IF NOT EXISTS links (
       id           TEXT PRIMARY KEY,
@@ -55,6 +55,31 @@ export async function initDb(): Promise<void> {
       is_expired   INTEGER NOT NULL DEFAULT 0
     );
     CREATE INDEX IF NOT EXISTS idx_links_short_code ON links(short_code);
+    CREATE TABLE IF NOT EXISTS code_pastes (
+      id         TEXT PRIMARY KEY,
+      code       TEXT NOT NULL,
+      language   TEXT NOT NULL DEFAULT 'plaintext',
+      short_code TEXT NOT NULL UNIQUE,
+      title      TEXT,
+      clicks     INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      expires_at TEXT,
+      is_expired INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_pastes_short_code ON code_pastes(short_code);
+    CREATE TABLE IF NOT EXISTS media_shares (
+      id         TEXT PRIMARY KEY,
+      filename   TEXT NOT NULL,
+      mime_type  TEXT NOT NULL,
+      size_bytes INTEGER NOT NULL DEFAULT 0,
+      short_code TEXT NOT NULL UNIQUE,
+      title      TEXT,
+      clicks     INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      expires_at TEXT,
+      is_expired INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE INDEX IF NOT EXISTS idx_media_short_code ON media_shares(short_code);
   `)
 
   // Seed sample data only when the table is empty

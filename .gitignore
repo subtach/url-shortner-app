@@ -19,3 +19,5 @@ links.db-wal
 .DS_Store
 *.pem
 npm-debug.log*
+# Local Netlify folder
+.netlify
