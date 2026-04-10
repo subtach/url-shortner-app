@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>short.ly – Project Documentation</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:   #6366f1;
+      --primary-dark: #4f46e5;
+      --accent:    #8b5cf6;
+      --bg:        #ffffff;
+      --surface:   #f8f9fb;
+      --border:    #e2e8f0;
+      --text:      #1e293b;
+      --muted:     #64748b;
+      --code-bg:   #0f172a;
+      --code-text: #e2e8f0;
+      --table-head:#f1f5f9;
+      --tag-blue:  #eff6ff;
+      --tag-blue-text: #1d4ed8;
+      --tag-green: #f0fdf4;
+      --tag-green-text: #15803d;
+      --tag-purple:#faf5ff;
+      --tag-purple-text: #7e22ce;
+      --tag-amber: #fffbeb;
+      --tag-amber-text: #92400e;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.7;
+      padding: 0;
+    }
+
+    /* ── Cover Page ── */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+      color: #fff;
+      text-align: center;
+      padding: 60px 40px;
+      page-break-after: always;
+    }
+
+    .cover-logo {
+      width: 80px; height: 80px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    .cover-logo svg { width: 40px; height: 40px; }
+
+    .cover h1 {
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 8px;
+    }
+
+    .cover .tagline {
+      font-size: 18px;
+      font-weight: 400;
+      opacity: 0.85;
+      margin-bottom: 40px;
+    }
+
+    .cover-meta {
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 99px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .cover-bottom {
+      margin-top: 60px;
+      font-size: 13px;
+      opacity: 0.65;
+    }
+
+    /* ── Page wrapper ── */
+    .page { max-width: 860px; margin: 0 auto; padding: 56px 48px; }
+
+    /* ── Section titles ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 28px 0 12px;
+    }
+
+    h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 20px 0 8px;
+    }
+
+    p { margin-bottom: 12px; color: var(--text); }
+    ul, ol { padding-left: 20px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+
+    /* ── Feature card ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      page-break-inside: avoid;
+    }
+
+    .feature-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px;
+      font-size: 20px;
+    }
+
+    .feature-card h4 { margin: 0 0 6px; font-size: 14px; }
+    .feature-card p  { font-size: 12.5px; color: var(--muted); margin: 0; }
+
+    /* ── Tech stack badges ── */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .tech-item {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .tech-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .tech-item h4 { margin: 0 0 2px; font-size: 13px; }
+    .tech-item p  { margin: 0; font-size: 12px; color: var(--muted); }
+
+    /* ── Code block ── */
+    .code-block {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      padding: 18px 20px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 12.5px;
+      line-height: 1.8;
+      margin: 16px 0;
+      overflow-x: auto;
+      page-break-inside: avoid;
+    }
+
+    .code-block .kw  { color: #a78bfa; }
+    .code-block .fn  { color: #60a5fa; }
+    .code-block .str { color: #34d399; }
+    .code-block .cmt { color: #64748b; font-style: italic; }
+    .code-block .num { color: #fb923c; }
+    .code-block .type{ color: #f9a8d4; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+      page-break-inside: avoid;
+    }
+
+    thead th {
+      background: var(--table-head);
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+    }
+
+    tbody td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tbody tr:nth-child(even) { background: var(--surface); }
+
+    /* ── Tag ── */
+    .tag {
+      display: inline-block;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .tag-blue   { background: var(--tag-blue);   color: var(--tag-blue-text);   }
+    .tag-green  { background: var(--tag-green);  color: var(--tag-green-text);  }
+    .tag-purple { background: var(--tag-purple); color: var(--tag-purple-text); }
+    .tag-amber  { background: var(--tag-amber);  color: var(--tag-amber-text);  }
+
+    /* ── Callout ── */
+    .callout {
+      border-left: 4px solid var(--primary);
+      background: #eef2ff;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 13.5px;
+      page-break-inside: avoid;
+    }
+
+    .callout strong { color: var(--primary-dark); }
+
+    /* ── API endpoint ── */
+    .endpoint {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin: 8px 0;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      page-break-inside: avoid;
+    }
+
+    .method {
+      font-weight: 700;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+
+    .method-get    { background: #dcfce7; color: #15803d; }
+    .method-post   { background: #dbeafe; color: #1d4ed8; }
+    .method-delete { background: #fee2e2; color: #b91c1c; }
+
+    /* ── Flow step ── */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 16px 0;
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 0;
+      border-left: 2px solid var(--border);
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .flow-step::before {
+      content: '';
+      position: absolute;
+      left: -7px;
+      top: 16px;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+
+    .flow-step:last-child { border-left-color: transparent; }
+
+    .flow-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+      flex-shrink: 0;
+      min-width: 24px;
+    }
+
+    .flow-text strong { display: block; font-size: 13.5px; }
+    .flow-text span   { font-size: 12.5px; color: var(--muted); }
+
+    /* ── DB schema table ── */
+    .schema-name {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--primary);
+      margin: 24px 0 8px;
+    }
+
+    /* ── Section divider ── */
+    .section-break {
+      margin: 48px 0;
+      border: none;
+      border-top: 1px dashed var(--border);
+    }
+
+    /* ── Print rules ── */
+    @media print {
+      .cover { min-height: 100vh; }
+      .page  { padding: 40px 36px; }
+      h2     { page-break-before: always; }
+      h2:first-child { page-break-before: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ COVER ═══════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+    </svg>
+  </div>
+
+  <h1>short.ly</h1>
+  <p class="tagline">All‑in‑One URL Shortener · Code Paste · Media Share Platform</p>
+
+  <div class="cover-meta">
+    <span class="badge">📄 Project Documentation</span>
+    <span class="badge">⚛️ Next.js 14</span>
+    <span class="badge">🗄 Turso / libSQL</span>
+    <span class="badge">☁️ Netlify Deployed</span>
+  </div>
+
+  <p class="cover-bottom">Generated March 2026 · subtach/shortly.github.io</p>
+</div>
+
+
+<!-- ═══════════════════════════════ TABLE OF CONTENTS ═══════════════════════════ -->
+<div class="page">
+  <p class="section-label">Navigation</p>
+  <h2>Table of Contents</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Section</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Project Overview</td><td>Goals, tech stack, and architecture summary</td></tr>
+      <tr><td>2</td><td>URL Shortener</td><td>Shorten + redirect long URLs, custom aliases, QR codes</td></tr>
+      <tr><td>3</td><td>Code Paste</td><td>Share syntax-highlighted code snippets with short links</td></tr>
+      <tr><td>4</td><td>Media Share</td><td>Upload and share images with short shareable links</td></tr>
+      <tr><td>5</td><td>Dashboard</td><td>Manage all links, view click analytics, delete entries</td></tr>
+      <tr><td>6</td><td>QR Code Generation</td><td>Auto-generate scannable QR codes for every item</td></tr>
+      <tr><td>7</td><td>Dark / Light Mode</td><td>System-aware theme toggle</td></tr>
+      <tr><td>8</td><td>Database Schema</td><td>Turso (cloud SQLite) tables and indexes</td></tr>
+      <tr><td>9</td><td>API Reference</td><td>All REST endpoints and their behaviour</td></tr>
+      <tr><td>10</td><td>Deployment</td><td>Netlify + Turso configuration</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════ 1. PROJECT OVERVIEW ═══════════════════════════ -->
+<div class="page">
+  <p class="section-label">Section 1</p>
+  <h2>Project Overview</h2>
+
+  <p>
+    <strong>short.ly</strong> is a full-stack web application built with <strong>Next.js 14</strong> that combines
+    three powerful sharing utilities in one place: a URL shortener, a code paste tool, and an image sharing service.
+    Every shared item gets a unique 6-character short code (or a custom alias) and an auto-generated QR code.
+  </p>
+
+  <div class="callout">
+    <strong>Deployment:</strong> The application is hosted on <strong>Netlify</strong> using serverless API routes
+    (Next.js API handlers compiled to Netlify Functions). Data is persisted in <strong>Turso</strong>,
+    a cloud-hosted libSQL (SQLite-compatible) database, and file blobs are stored in <strong>Netlify Blobs</strong>.
+  </div>
+
+  <h3>Technology Stack</h3>
+  <div class="tech-grid">
+    <div class="tech-item">
+      <div class="tech-icon" style="background:#dbeafe">⚛️</div>
+      <div>
+        <h4>Next.js 14 (App Router)</h4>
+        <p>React framework — Server Components, Client Components, API Routes and file-based routing</p>
+      </div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-icon" style="background:#dcfce7">🗄️</div>
+      <div>
+        <h4>Turso / libSQL</h4>
+        <p>Cloud SQLite database. Accessed via the <code>@libsql/client</code> package from server-side API routes</p>
+      </div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-icon" style="background:#faf5ff">💅</div>
+      <div>
+        <h4>Tailwind CSS</h4>
+        <p>Utility-first CSS framework for responsive, themed UI components</p>
+      </div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-icon" style="background:#fff7ed">☁️</div>
+      <div>
+        <h4>Netlify Blobs</h4>
+        <p>Object storage used to persist uploaded images, keyed by the media item's short code</p>
+      </div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-icon" style="background:#fdf2f8">🔷</div>
+      <div>
+        <h4>TypeScript</h4>
+        <p>End-to-end type safety for API payloads, database rows, and React props</p>
+      </div>
+    </div>
+    <div class="tech-item">
+      <div class="tech-icon" style="background:#f0fdf4">📦</div>
+      <div>
+        <h4>qrcode</h4>
+        <p>Node.js QR code library used server-side to generate PNG QR codes as base64 data URIs</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Application Pages</h3>
+  <table>
+    <thead>
+      <tr><th>Route</th><th>Page</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>/</code></td><td>Home</td><td>URL Shortener form and hero landing section</td></tr>
+      <tr><td><code>/paste</code></td><td>Paste Code</td><td>Code snippet submission form</td></tr>
+      <tr><td><code>/media</code></td><td>Media Share</td><td>Image upload and sharing form</td></tr>
+      <tr><td><code>/dashboard</code></td><td>Dashboard</td><td>Tabbed view of all links, pastes, and media items</td></tr>
+      <tr><td><code>/[shortCode]</code></td><td>Redirect</td><td>Resolves a short code and redirects to the original URL</td></tr>
+      <tr><td><code>/paste/[shortCode]</code></td><td>Paste Viewer</td><td>Displays syntax-highlighted code with copy button</td></tr>
+      <tr><td><code>/media/[shortCode]</code></td><td>Media Viewer</td><td>Displays the shared image with download link</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════ 2. URL SHORTENER ═══════════════════════════════ -->
+<div class="page">
+  <p class="section-label">Section 2</p>
+  <h2>URL Shortener</h2>
+
+  <p>
+    The core feature of short.ly lets users paste any long URL and receive a compact short link. The short link
+    automatically redirects visitors to the original destination and tracks how many times it has been visited.
+  </p>
+
+  <h3>How to Use</h3>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-text"><strong>Enter a long URL</strong><span>Paste any valid URL into the main input field on the home page.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Optional: Set a custom alias</strong><span>Type a memorable word (e.g. "my-blog") to use as the short code instead of the random one. Only alphanumeric characters, hyphens, and underscores are accepted.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Optional: Set an expiry date</strong><span>Pick a date after which the short link will stop redirecting visitors.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Click "Shorten URL"</strong><span>The form POSTs to <code>/api/shorten</code>. The result card appears below the form with the short link and QR code.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Copy or scan the result</strong><span>Use the copy button to copy the short URL to clipboard, or scan the QR code with any mobile device.</span></div>
+    </div>
+  </div>
+
+  <h3>Key Features</h3>
+  <table>
+    <thead><tr><th>Feature</th><th>Description</th><th>Implementation Detail</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tag tag-blue">Short Code Generation</span></td>
+        <td>Auto-generates a random 6-character alphanumeric code</td>
+        <td><code>generateShortCode()</code> in <code>lib/api.ts</code> — iterates 6 times picking chars from <code>a-z0-9</code> using <code>Math.random()</code></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-green">Custom Alias</span></td>
+        <td>User-defined short code instead of the random one</td>
+        <td>Uniqueness is verified against the <code>links</code> table before insert. Input is sanitised in the React form to allow only <code>[a-zA-Z0-9-_]</code></td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-purple">Link Expiry</span></td>
+        <td>Links can expire on a chosen date</td>
+        <td><code>expires_at</code> is stored as ISO 8601 string. On resolution, the API checks <code>new Date(expiresAt) &lt; new Date()</code> and blocks the redirect if expired</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-amber">Click Tracking</span></td>
+        <td>Every redirect increments the visit counter</td>
+        <td><code>UPDATE links SET clicks = clicks + 1</code> runs atomically on the Turso row when a valid (non-expired) short code is resolved</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">QR Code</span></td>
+        <td>Scannable QR code auto-generated for each link</td>
+        <td>Fetched via <code>/api/qr?url=...</code> which calls the <code>qrcode</code> npm library server-side and returns a base64 PNG data URI</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Implementation Snippet — Short Code Resolution</h3>
+  <div class="code-block"><span class="cmt">// lib/api.ts — resolveShortCode()</span>
+<span class="kw">const</span> { rows } = <span class="kw">await</span> db.<span class="fn">execute</span>({
+  sql: <span class="str">'SELECT * FROM links WHERE short_code = ?'</span>,
+  args: [shortCode],
+})
+
+<span class="kw">const</span> isExpired =
+  rowNum(row, <span class="str">'is_expired'</span>) === <span class="num">1</span> ||
+  (expiresAt ? <span class="kw">new</span> <span class="fn">Date</span>(expiresAt) &lt; <span class="kw">new</span> <span class="fn">Date</span>() : <span class="kw">false</span>)
+
+<span class="cmt">// Only count the click if link is still active</span>
+<span class="kw">if</span> (!isExpired) {
+  <span class="kw">await</span> db.<span class="fn">execute</span>({
+    sql: <span class="str">'UPDATE links SET clicks = clicks + 1 WHERE short_code = ?'</span>,
+    args: [shortCode],
+  })
+}</div>
+</div>
+
+
+<!-- ═══════════════════════════════ 3. CODE PASTE ═══════════════════════════════ -->
+<div class="page">
+  <p class="section-label">Section 3</p>
+  <h2>Code Paste</h2>
+
+  <p>
+    Inspired by tools like Pastebin and paste.ee, the Code Paste feature allows developers to share code snippets
+    with full syntax highlighting, accessible via a short link. Navigate to <strong>/paste</strong> to use it.
+  </p>
+
+  <h3>Supported Languages (30+)</h3>
+  <p>The language selector supports the following modes for syntax highlighting:</p>
+  <div style="display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 20px;">
+    <span class="tag tag-blue">JavaScript</span>
+    <span class="tag tag-blue">TypeScript</span>
+    <span class="tag tag-green">Python</span>
+    <span class="tag tag-green">Java</span>
+    <span class="tag tag-amber">C / C++ / C#</span>
+    <span class="tag tag-purple">Go</span>
+    <span class="tag tag-purple">Rust</span>
+    <span class="tag tag-blue">PHP</span>
+    <span class="tag tag-green">Ruby</span>
+    <span class="tag tag-amber">Swift / Kotlin</span>
+    <span class="tag tag-blue">HTML / CSS / SCSS</span>
+    <span class="tag tag-green">SQL</span>
+    <span class="tag tag-amber">Bash / PowerShell</span>
+    <span class="tag tag-purple">JSON / YAML / XML</span>
+    <span class="tag tag-blue">Markdown</span>
+    <span class="tag tag-green">Dockerfile</span>
+    <span class="tag tag-purple">GraphQL</span>
+    <span class="tag tag-blue">R / Lua / Dart / Scala</span>
+    <span class="tag tag-amber">Plain Text</span>
+  </div>
+
+  <h3>How to Use</h3>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-text"><strong>Go to /paste</strong><span>Click "Paste Code" in the top navigation bar.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Set an optional title</strong><span>Give the paste a descriptive name shown in the viewer header.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Select the programming language</strong><span>Choose from 30 languages in the dropdown — this controls syntax highlighting in the viewer.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Paste your code</strong><span>The monospace <code>&lt;textarea&gt;</code> is resizable and spell-check is disabled.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Optionally set alias and expiry, then click "Create Paste"</strong><span>POSTs to <code>/api/paste</code>. Returns a short URL (e.g. <code>short.ly/paste/ab12cd</code>) and QR code.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Share the link</strong><span>Anyone visiting the URL sees the rendered, read-only code viewer with a one-click copy button.</span></div>
+    </div>
+  </div>
+
+  <h3>Implementation Details</h3>
+  <table>
+    <thead><tr><th>Aspect</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>Storage</td><td>Code is stored as a plain <code>TEXT</code> column in the <code>code_pastes</code> Turso table — no file system involved</td></tr>
+      <tr><td>Syntax Highlighting</td><td>The paste viewer uses the <code>highlight.js</code> library, applied client-side via a <code>useEffect</code> hook that calls <code>hljs.highlightElement()</code> on the <code>&lt;pre&gt;&lt;code&gt;</code> block after mount</td></tr>
+      <tr><td>Alias Uniqueness</td><td>Custom aliases are checked across <strong>both</strong> <code>links</code> and <code>code_pastes</code> tables simultaneously using <code>Promise.all()</code></td></tr>
+      <tr><td>Click Tracking</td><td>Same mechanism as URL links — increments <code>clicks</code> on first load of the paste viewer page</td></tr>
+      <tr><td>Expiry</td><td>Expired pastes show an "Expired" banner in the viewer instead of redirecting</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════ 4. MEDIA SHARE ═══════════════════════════════ -->
+<div class="page">
+  <p class="section-label">Section 4</p>
+  <h2>Media Share</h2>
+
+  <p>
+    The Media Share feature lets users upload images and receive a short link that displays a full-page image viewer.
+    Files are stored in <strong>Netlify Blobs</strong> (object storage) keyed by the short code, while metadata is
+    stored in Turso.
+  </p>
+
+  <h3>Supported Formats &amp; Limits</h3>
+  <table>
+    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Accepted MIME types</td><td>JPEG, PNG, GIF, WebP, SVG, AVIF</td></tr>
+      <tr><td>Maximum file size</td><td>5 MB (enforced client-side and server-side)</td></tr>
+      <tr><td>Upload method</td><td><code>multipart/form-data</code> via the Fetch API using <code>FormData</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>How to Use</h3>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-text"><strong>Navigate to /media</strong><span>Click "Media Share" in the top navigation bar.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Drop or browse for an image</strong><span>The drag-and-drop zone accepts any supported image type. A real-time preview is shown immediately after selection, along with the file name and size.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Optional: add a title, custom alias, or expiry date</strong></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Click "Share Image"</strong><span>The file is uploaded as a <code>FormData</code> POST to <code>/api/media</code>. The server stores the blob in Netlify Blobs and the metadata in Turso.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Share the returned link or QR code</strong><span>Recipients see a full-screen responsive image viewer at <code>/media/[shortCode]</code> with a download button.</span></div>
+    </div>
+  </div>
+
+  <h3>Implementation Details</h3>
+  <table>
+    <thead><tr><th>Aspect</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>Drag &amp; Drop</td><td>Implemented via HTML5 <code>onDragOver</code> / <code>onDrop</code> events on a styled <code>&lt;div&gt;</code>. A hidden <code>&lt;input type="file"&gt;</code> is triggered on click via a <code>useRef</code> handle</td></tr>
+      <tr><td>Client Preview</td><td><code>URL.createObjectURL(file)</code> creates a temporary local URL for the <code>&lt;img&gt;</code> preview without uploading</td></tr>
+      <tr><td>Blob Storage</td><td>Server-side API route uses the <code>@netlify/blobs</code> SDK — <code>store.set(shortCode, buffer)</code> — to persist the raw file bytes</td></tr>
+      <tr><td>Raw Download</td><td><code>GET /api/media/[shortCode]/raw</code> fetches the blob from Netlify Blobs and streams it back with the correct <code>Content-Type</code> header</td></tr>
+      <tr><td>Metadata</td><td>Filename, MIME type, size in bytes, short code, title, clicks, timestamps stored in <code>media_shares</code> Turso table</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════ 5. DASHBOARD ═══════════════════════════════ -->
+<div class="page">
+  <p class="section-label">Section 5</p>
+  <h2>Dashboard</h2>
+
+  <p>
+    The Dashboard (<strong>/dashboard</strong>) provides a central management interface for all items created in the
+    application. It is split into three tabs: <em>Links</em>, <em>Pastes</em>, and <em>Media</em>.
+  </p>
+
+  <h3>Dashboard Features</h3>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#eff6ff">📊</div>
+      <h4>Click Analytics</h4>
+      <p>Each row shows the total click/view count for that item in real time.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#faf5ff">📋</div>
+      <h4>One-Click Copy</h4>
+      <p>A copy button next to every short URL instantly copies it to the clipboard.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#f0fdf4">🗑️</div>
+      <h4>Delete</h4>
+      <p>Every row has a delete button that permanently removes the item from the database.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#fff7ed">📷</div>
+      <h4>QR Modal</h4>
+      <p>Clicking the QR icon opens a full-resolution QR code in a modal overlay, ready to scan or download.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#fdf2f8">⏰</div>
+      <h4>Expiry Status</h4>
+      <p>Expired items are visually dimmed and show an "Expired" badge so you can identify and clean them up.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:#fffbeb">🔍</div>
+      <h4>Sortable Table</h4>
+      <p>All items are listed newest-first with short code, original URL, clicks, created date, and expiry columns.</p>
+    </div>
+  </div>
+
+  <h3>Implementation Details</h3>
+  <table>
+    <thead><tr><th>Aspect</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>Data Fetching</td><td>The dashboard page is a Server Component that fetches all three lists from Turso via <code>getLinks()</code>, <code>getPastes()</code>, and <code>getMediaShares()</code> in parallel using <code>Promise.all()</code> before rendering</td></tr>
+      <tr><td>Tab State</td><td>A lightweight client-side <code>useState</code> controls which tab is shown — no router changes needed, tabs are purely presentational</td></tr>
+      <tr><td>Delete Action</td><td>Clicking delete calls <code>DELETE /api/links/:id</code>, <code>DELETE /api/paste/:id</code>, or <code>DELETE /api/media/:id</code>. On success the row is removed from local React state without a full page refresh</td></tr>
+      <tr><td>Copy Button</td><td><code>navigator.clipboard.writeText()</code> copies the URL; the button icon switches from Clipboard to Checkmark for 2 seconds as visual feedback</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════ 6. QR CODES ═══════════════════════════════ -->
+<div class="page">
+  <p class="section-label">Section 6</p>
+  <h2>QR Code Generation</h2>
+
+  <p>
+    Every item (short URL, paste, or media) automatically gets a QR code. QR codes are generated <strong>server-side</strong>
+    to keep the bundle lean and avoid compatibility issues in serverless environments.
+  </p>
+
+  <h3>Flow</h3>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-text"><strong>Result card or modal is rendered</strong><span>The React component calls <code>/api/qr?url=&lt;encoded-url&gt;</code> via <code>fetch</code>.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Server generates the QR PNG</strong><span>The API route imports <code>qrcode</code> and calls <code>QRCode.toDataURL(url, { ...options })</code> which returns a base64-encoded PNG data URI.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Data URI is rendered in an &lt;img&gt; tag</strong><span>No file is written to disk — the base64 string is returned as JSON and placed directly into <code>src</code>.</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-text"><strong>Modal allows full-size download</strong><span>The <code>QRCodeModal</code> component includes a download anchor that triggers a browser save of the PNG.</span></div>
+    </div>
+  </div>
+
+  <h3>QR API Endpoint</h3>
+  <div class="endpoint">
+    <span class="method method-get">GET</span>
+    <span>/api/qr?url={encodedUrl}</span>
+  </div>
+  <p style="margin-top:8px; font-size:13px; color:var(--muted);">Returns <code>{"qr": "data:image/png;base64,..."}</code></p>
+
+  <div class="callout">
+    <strong>Why server-side?</strong> The <code>qrcode</code> npm package uses Node.js Canvas internally.
+    Running it in the browser or in certain edge runtimes causes errors, so all generation happens in the
+    Next.js API route (a full Node.js serverless function on Netlify).
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════ 7. DARK MODE ═══════════════════════════════ -->
+<div class="page">
+  <p class="section-label">Section 7</p>
+  <h2>Dark / Light Mode</h2>
+
+  <p>
+    short.ly ships with a full dark-mode theme that respects the user's system preference and allows manual
+    override via a toggle button in the navigation bar.
+  </p>
+
+  <h3>Implementation</h3>
+  <table>
+    <thead><tr><th>Aspect</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>Library</td><td><code>next-themes</code> wraps the root layout in a <code>ThemeProvider</code> that handles SSR hydration and persists the choice to <code>localStorage</code></td></tr>
+      <tr><td>Toggle Button</td><td><code>ThemeToggle</code> component uses <code>useTheme()</code> to read and set the current theme, switching between a Sun icon (light) and Moon icon (dark)</td></tr>
+      <tr><td>CSS Variables</td><td>All colours are defined as CSS custom properties. Tailwind's dark-mode (<code>class</code> strategy) applies a <code>.dark</code> class to <code>&lt;html&gt;</code> and the variables flip automatically</td></tr>
+      <tr><td>Default</td><td><code>attribute="class"</code> and <code>defaultTheme="system"</code> — the app defaults to whatever the OS prefers on first visit</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════ 8. DATABASE SCHEMA ═══════════════════════════ -->
+<div class="page">
+  <p class="section-label">Section 8</p>
+  <h2>Database Schema</h2>
+
+  <p>
+    All data is stored in <strong>Turso</strong>, a distributed libSQL (SQLite-compatible) database. The schema is
+    auto-initialised on first API call via <code>initDb()</code> in <code>lib/db.ts</code> using
+    <code>CREATE TABLE IF NOT EXISTS</code> DDL, making the app self-bootstrapping.
+  </p>
+
+  <p class="schema-name">Table: links</p>
+  <table>
+    <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>TEXT PK</td><td>Unix timestamp string used as unique ID</td></tr>
+      <tr><td><code>original_url</code></td><td>TEXT NOT NULL</td><td>The full long URL to redirect to</td></tr>
+      <tr><td><code>short_code</code></td><td>TEXT UNIQUE</td><td>6-char random or user-defined alias</td></tr>
+      <tr><td><code>clicks</code></td><td>INTEGER</td><td>Number of times the short link was accessed (default 0)</td></tr>
+      <tr><td><code>created_at</code></td><td>TEXT</td><td>ISO 8601 creation timestamp</td></tr>
+      <tr><td><code>expires_at</code></td><td>TEXT (nullable)</td><td>ISO 8601 expiry timestamp — <code>NULL</code> means never expires</td></tr>
+      <tr><td><code>is_expired</code></td><td>INTEGER</td><td>Manual override flag (0 = active, 1 = expired)</td></tr>
+    </tbody>
+  </table>
+
+  <p class="schema-name">Table: code_pastes</p>
+  <table>
+    <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>TEXT PK</td><td>Unix timestamp string</td></tr>
+      <tr><td><code>code</code></td><td>TEXT NOT NULL</td><td>Full code snippet text</td></tr>
+      <tr><td><code>language</code></td><td>TEXT</td><td>Language identifier for highlight.js (default: <code>plaintext</code>)</td></tr>
+      <tr><td><code>short_code</code></td><td>TEXT UNIQUE</td><td>Short identifier for the paste</td></tr>
+      <tr><td><code>title</code></td><td>TEXT (nullable)</td><td>Optional display title</td></tr>
+      <tr><td><code>clicks</code></td><td>INTEGER</td><td>View count</td></tr>
+      <tr><td><code>created_at</code></td><td>TEXT</td><td>ISO 8601 creation timestamp</td></tr>
+      <tr><td><code>expires_at</code></td><td>TEXT (nullable)</td><td>Optional expiry timestamp</td></tr>
+      <tr><td><code>is_expired</code></td><td>INTEGER</td><td>Manual override flag</td></tr>
+    </tbody>
+  </table>
+
+  <p class="schema-name">Table: media_shares</p>
+  <table>
+    <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>TEXT PK</td><td>Unix timestamp string</td></tr>
+      <tr><td><code>filename</code></td><td>TEXT NOT NULL</td><td>Original file name of the uploaded image</td></tr>
+      <tr><td><code>mime_type</code></td><td>TEXT NOT NULL</td><td>MIME type, e.g. <code>image/png</code></td></tr>
+      <tr><td><code>size_bytes</code></td><td>INTEGER</td><td>File size in bytes</td></tr>
+      <tr><td><code>short_code</code></td><td>TEXT UNIQUE</td><td>Short identifier (also the Netlify Blob key)</td></tr>
+      <tr><td><code>title</code></td><td>TEXT (nullable)</td><td>Optional display title</td></tr>
+      <tr><td><code>clicks</code></td><td>INTEGER</td><td>View count</td></tr>
+      <tr><td><code>created_at</code></td><td>TEXT</td><td>ISO 8601 creation timestamp</td></tr>
+      <tr><td><code>expires_at</code></td><td>TEXT (nullable)</td><td>Optional expiry timestamp</td></tr>
+      <tr><td><code>is_expired</code></td><td>INTEGER</td><td>Manual override flag</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Indexes:</strong> Each table has a dedicated index on <code>short_code</code>
+    (<code>CREATE INDEX IF NOT EXISTS idx_*_short_code</code>) for O(log n) lookups on every redirect and resolve operation.
+  </div>
+
+  <h3>Helper Utilities (lib/db.ts)</h3>
+  <table>
+    <thead><tr><th>Function</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>getDb()</code></td><td>Singleton factory — creates the libSQL client once per serverless instance using env vars <code>TURSO_DATABASE_URL</code> and <code>TURSO_AUTH_TOKEN</code></td></tr>
+      <tr><td><code>initDb()</code></td><td>Runs all DDL migrations idempotently and seeds sample link data if the <code>links</code> table is empty</td></tr>
+      <tr><td><code>rowStr(row, col)</code></td><td>Safely casts a libSQL Row column to <code>string</code> (returns <code>''</code> for nulls)</td></tr>
+      <tr><td><code>rowStrNull(row, col)</code></td><td>Same but returns <code>null</code> instead of empty string</td></tr>
+      <tr><td><code>rowNum(row, col)</code></td><td>Safely casts to <code>number</code> (returns <code>0</code> for nulls)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════ 9. API REFERENCE ═══════════════════════════ -->
+<div class="page">
+  <p class="section-label">Section 9</p>
+  <h2>API Reference</h2>
+
+  <p>
+    All API routes live under <code>app/api/</code> and are executed as Netlify Functions (full Node.js runtime).
+    Every endpoint calls <code>initDb()</code> to ensure the schema exists before running any SQL.
+  </p>
+
+  <h3>URL Shortener Endpoints</h3>
+
+  <div class="endpoint">
+    <span class="method method-post">POST</span>
+    <span>/api/shorten</span>
+  </div>
+  <p style="font-size:13px; margin:6px 0 0 0;"><strong>Body:</strong> <code>{"url": "...", "customAlias"?: "...", "expiresAt"?: "YYYY-MM-DD"}</code></p>
+  <p style="font-size:13px; color:var(--muted);">Validates the URL, checks alias uniqueness, generates a short code, inserts into <code>links</code>, returns the full <code>ShortenedLink</code> object.</p>
+
+  <div class="endpoint">
+    <span class="method method-get">GET</span>
+    <span>/api/links</span>
+  </div>
+  <p style="font-size:13px; color:var(--muted); margin-top:6px;">Returns all links ordered by <code>created_at DESC</code> for the dashboard.</p>
+
+  <div class="endpoint">
+    <span class="method method-delete">DELETE</span>
+    <span>/api/links/[id]</span>
+  </div>
+  <p style="font-size:13px; color:var(--muted); margin-top:6px;">Permanently deletes a link row by its ID.</p>
+
+  <h3>Code Paste Endpoints</h3>
+
+  <div class="endpoint">
+    <span class="method method-post">POST</span>
+    <span>/api/paste</span>
+  </div>
+  <p style="font-size:13px; margin:6px 0 0 0;"><strong>Body:</strong> <code>{"code": "...", "language": "...", "title"?: "...", "customAlias"?: "...", "expiresAt"?: "..."}</code></p>
+  <p style="font-size:13px; color:var(--muted);">Validates code is non-empty, checks alias across both <code>links</code> and <code>code_pastes</code> tables, inserts and returns the paste.</p>
+
+  <div class="endpoint">
+    <span class="method method-get">GET</span>
+    <span>/api/paste/[shortCode]</span>
+  </div>
+  <p style="font-size:13px; color:var(--muted); margin-top:6px;">Resolves a paste short code, increments click counter, returns full paste data.</p>
+
+  <div class="endpoint">
+    <span class="method method-delete">DELETE</span>
+    <span>/api/paste/[id]</span>
+  </div>
+  <p style="font-size:13px; color:var(--muted); margin-top:6px;">Permanently deletes a paste by ID.</p>
+
+  <h3>Media Share Endpoints</h3>
+
+  <div class="endpoint">
+    <span class="method method-post">POST</span>
+    <span>/api/media</span>
+  </div>
+  <p style="font-size:13px; margin:6px 0 0 0;"><strong>Body:</strong> <code>multipart/form-data</code> with fields <code>file</code>, optional <code>title</code>, <code>customAlias</code>, <code>expiresAt</code>.</p>
+  <p style="font-size:13px; color:var(--muted);">Validates file type and size, stores blob in Netlify Blobs, inserts metadata into <code>media_shares</code>.</p>
+
+  <div class="endpoint">
+    <span class="method method-get">GET</span>
+    <span>/api/media/[shortCode]/raw</span>
+  </div>
+  <p style="font-size:13px; color:var(--muted); margin-top:6px;">Fetches the raw image blob from Netlify Blobs and streams it back with correct MIME type headers.</p>
+
+  <div class="endpoint">
+    <span class="method method-delete">DELETE</span>
+    <span>/api/media/[id]</span>
+  </div>
+  <p style="font-size:13px; color:var(--muted); margin-top:6px;">Deletes the media metadata from Turso and the blob from Netlify Blobs.</p>
+
+  <h3>Utility Endpoints</h3>
+
+  <div class="endpoint">
+    <span class="method method-get">GET</span>
+    <span>/api/qr?url={encodedUrl}</span>
+  </div>
+  <p style="font-size:13px; color:var(--muted); margin-top:6px;">Generates a QR code PNG server-side and returns it as a base64 data URI JSON response.</p>
+</div>
+
+
+<!-- ═══════════════════════════════ 10. DEPLOYMENT ═══════════════════════════════ -->
+<div class="page">
+  <p class="section-label">Section 10</p>
+  <h2>Deployment</h2>
+
+  <p>
+    The project is deployed to <strong>Netlify</strong> using Next.js's Netlify adapter. Database reads and writes
+    go to <strong>Turso</strong> (cloud SQLite), and binary file data is stored in <strong>Netlify Blobs</strong>.
+  </p>
+
+  <h3>Required Environment Variables</h3>
+  <table>
+    <thead><tr><th>Variable</th><th>Where to set</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>TURSO_DATABASE_URL</code></td>
+        <td>Netlify Dashboard → Site → Environment Variables</td>
+        <td>libsql:// connection URL for the Turso database</td>
+      </tr>
+      <tr>
+        <td><code>TURSO_AUTH_TOKEN</code></td>
+        <td>Netlify Dashboard → Site → Environment Variables</td>
+        <td>Authentication token for the Turso database</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>netlify.toml Configuration</h3>
+  <div class="code-block"><span class="cmt"># netlify.toml</span>
+[build]
+  command = <span class="str">"npm run build"</span>
+  publish = <span class="str">".next"</span>
+
+[[plugins]]
+  package = <span class="str">"@netlify/plugin-nextjs"</span></div>
+
+  <h3>Local Development</h3>
+  <div class="code-block"><span class="cmt"># 1. Clone and install dependencies</span>
+npm install
+
+<span class="cmt"># 2. Create .env.local with your Turso credentials</span>
+TURSO_DATABASE_URL=libsql://&lt;db&gt;.turso.io
+TURSO_AUTH_TOKEN=&lt;your-token&gt;
+
+<span class="cmt"># 3. Start the development server</span>
+npm run dev   <span class="cmt"># starts at http://localhost:3000</span></div>
+
+  <h3>Deployment Checklist</h3>
+  <table>
+    <thead><tr><th>Step</th><th>Action</th><th>Status Indicator</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Push code to GitHub repository</td><td>Git push</td></tr>
+      <tr><td>2</td><td>Connect GitHub repo to Netlify</td><td>Netlify dashboard</td></tr>
+      <tr><td>3</td><td>Set <code>TURSO_DATABASE_URL</code> and <code>TURSO_AUTH_TOKEN</code> in Netlify</td><td>Environment vars section</td></tr>
+      <tr><td>4</td><td>Trigger deploy (auto on push or manual)</td><td>Netlify build logs</td></tr>
+      <tr><td>5</td><td>Visit the deployed URL and test all three features</td><td>Green status in Netlify</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="section-break" />
+
+  <div style="text-align:center; color:var(--muted); font-size:12.5px; margin-top:20px;">
+    <p><strong>short.ly</strong> — Built with Next.js 14 · Turso · Netlify</p>
+    <p style="margin-top:4px;">Documentation generated March 2026 · subtach/shortly.github.io</p>
+  </div>
+</div>
+
+</body>
+</html>

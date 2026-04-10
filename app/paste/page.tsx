@@ -39,7 +39,7 @@ export default function PastePage() {
           )}
 
           {/* Features */}
-          <div className="mt-12 grid grid-cols-3 gap-4">
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="flex flex-col items-center text-center">
               <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20">
                 <Code2 className="h-5 w-5 text-foreground" />

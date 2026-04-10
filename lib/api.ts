@@ -1,4 +1,4 @@
-import type { ShortenedLink, ShortenRequest, ShortenResponse, LinksResponse, CodePaste, PasteRequest, PasteResponse, MediaShare, MediaShareResponse } from './types'
+import type { ShortenedLink, ShortenRequest, ShortenResponse, LinksResponse, CodePaste, PasteRequest, PasteResponse, MediaShare, MediaShareResponse, DashboardData } from './types'
 import { getDb, initDb, rowStr, rowStrNull, rowNum } from './db'
 import type { Row } from '@libsql/client'
 
@@ -14,6 +14,7 @@ function rowToLink(row: Row, baseUrl: string): ShortenedLink {
     createdAt: rowStr(row, 'created_at'),
     expiresAt: rowStrNull(row, 'expires_at'),
     isExpired: rowNum(row, 'is_expired') === 1,
+    userId: rowStrNull(row, 'user_id'),
   }
 }
 
@@ -32,7 +33,8 @@ function generateShortCode(): string {
  */
 export async function shortenUrl(
   request: ShortenRequest,
-  baseUrl: string = DEFAULT_BASE_URL
+  baseUrl: string = DEFAULT_BASE_URL,
+  userId?: string | null
 ): Promise<ShortenResponse> {
   // Validate URL
   try {
@@ -60,9 +62,9 @@ export async function shortenUrl(
   const createdAt = new Date().toISOString()
 
   await db.execute({
-    sql: `INSERT INTO links (id, original_url, short_code, clicks, created_at, expires_at, is_expired)
-          VALUES (?, ?, ?, 0, ?, ?, 0)`,
-    args: [id, request.url, shortCode, createdAt, request.expiresAt ?? null],
+    sql: `INSERT INTO links (id, original_url, short_code, clicks, created_at, expires_at, is_expired, user_id)
+          VALUES (?, ?, ?, 0, ?, ?, 0, ?)`,
+    args: [id, request.url, shortCode, createdAt, request.expiresAt ?? null, userId ?? null],
   })
 
   const { rows } = await db.execute({
@@ -155,6 +157,7 @@ function rowToPaste(row: import('@libsql/client').Row, baseUrl: string): CodePas
     createdAt: rowStr(row, 'created_at'),
     expiresAt: rowStrNull(row, 'expires_at'),
     isExpired: rowNum(row, 'is_expired') === 1,
+    userId: rowStrNull(row, 'user_id'),
   }
 }
 
@@ -164,7 +167,8 @@ function rowToPaste(row: import('@libsql/client').Row, baseUrl: string): CodePas
  */
 export async function createPaste(
   request: PasteRequest,
-  baseUrl: string = DEFAULT_BASE_URL
+  baseUrl: string = DEFAULT_BASE_URL,
+  userId?: string | null
 ): Promise<PasteResponse> {
   if (!request.code?.trim()) {
     return { success: false, error: 'Code cannot be empty' }
@@ -189,8 +193,8 @@ export async function createPaste(
   const createdAt = new Date().toISOString()
 
   await db.execute({
-    sql: `INSERT INTO code_pastes (id, code, language, short_code, title, clicks, created_at, expires_at, is_expired)
-          VALUES (?, ?, ?, ?, ?, 0, ?, ?, 0)`,
+    sql: `INSERT INTO code_pastes (id, code, language, short_code, title, clicks, created_at, expires_at, is_expired, user_id)
+          VALUES (?, ?, ?, ?, ?, 0, ?, ?, 0, ?)`,
     args: [
       id,
       request.code,
@@ -199,6 +203,7 @@ export async function createPaste(
       request.title ?? null,
       createdAt,
       request.expiresAt ?? null,
+      userId ?? null,
     ],
   })
 
@@ -244,6 +249,16 @@ export async function resolvePasteShortCode(
   return { success: true, data: rowToPaste(row, baseUrl) }
 }
 
+/**
+ * DELETE a paste by ID.
+ */
+export async function deletePaste(id: string): Promise<{ success: boolean }> {
+  await initDb()
+  const db = getDb()
+  await db.execute({ sql: 'DELETE FROM code_pastes WHERE id = ?', args: [id] })
+  return { success: true }
+}
+
 // ---------------------------------------------------------------------------
 // Media Share API
 // ---------------------------------------------------------------------------
@@ -263,6 +278,7 @@ function rowToMedia(row: import('@libsql/client').Row, baseUrl: string): MediaSh
     createdAt: rowStr(row, 'created_at'),
     expiresAt: rowStrNull(row, 'expires_at'),
     isExpired: rowNum(row, 'is_expired') === 1,
+    userId: rowStrNull(row, 'user_id'),
   }
 }
 
@@ -282,7 +298,8 @@ export interface CreateMediaShareInput {
  */
 export async function createMediaShare(
   input: CreateMediaShareInput,
-  baseUrl: string = DEFAULT_BASE_URL
+  baseUrl: string = DEFAULT_BASE_URL,
+  userId?: string | null
 ): Promise<MediaShareResponse> {
   await initDb()
   const db = getDb()
@@ -304,8 +321,8 @@ export async function createMediaShare(
   const createdAt = new Date().toISOString()
 
   await db.execute({
-    sql: `INSERT INTO media_shares (id, filename, mime_type, size_bytes, short_code, title, clicks, created_at, expires_at, is_expired)
-          VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, 0)`,
+    sql: `INSERT INTO media_shares (id, filename, mime_type, size_bytes, short_code, title, clicks, created_at, expires_at, is_expired, user_id)
+          VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, 0, ?)`,
     args: [
       id,
       input.filename,
@@ -315,6 +332,7 @@ export async function createMediaShare(
       input.title ?? null,
       createdAt,
       input.expiresAt ?? null,
+      userId ?? null,
     ],
   })
 
@@ -357,4 +375,63 @@ export async function resolveMediaShortCode(
   }
 
   return { success: true, data: rowToMedia(row, baseUrl) }
+}
+
+/**
+ * DELETE a media share by ID.
+ */
+export async function deleteMediaShare(id: string): Promise<{ success: boolean }> {
+  await initDb()
+  const db = getDb()
+  await db.execute({ sql: 'DELETE FROM media_shares WHERE id = ?', args: [id] })
+  return { success: true }
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard API — user-specific queries
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetch all content belonging to a specific user.
+ */
+export async function getUserDashboardData(
+  userId: string,
+  baseUrl: string = DEFAULT_BASE_URL
+): Promise<DashboardData> {
+  await initDb()
+  const db = getDb()
+
+  const [linksResult, pastesResult, mediaResult] = await Promise.all([
+    db.execute({ sql: 'SELECT * FROM links WHERE user_id = ? ORDER BY created_at DESC', args: [userId] }),
+    db.execute({ sql: 'SELECT * FROM code_pastes WHERE user_id = ? ORDER BY created_at DESC', args: [userId] }),
+    db.execute({ sql: 'SELECT * FROM media_shares WHERE user_id = ? ORDER BY created_at DESC', args: [userId] }),
+  ])
+
+  const links = linksResult.rows.map((r) => rowToLink(r, baseUrl))
+  const pastes = pastesResult.rows.map((r) => rowToPaste(r, baseUrl))
+  const mediaShares = mediaResult.rows.map((r) => rowToMedia(r, baseUrl))
+
+  const activeLinks = links.filter((l) => !l.isExpired)
+  const activePastes = pastes.filter((p) => !p.isExpired)
+  const activeMedia = mediaShares.filter((m) => !m.isExpired)
+
+  const totalClicks =
+    links.reduce((s, l) => s + l.clicks, 0) +
+    pastes.reduce((s, p) => s + p.clicks, 0) +
+    mediaShares.reduce((s, m) => s + m.clicks, 0)
+
+  return {
+    links,
+    pastes,
+    mediaShares,
+    stats: {
+      totalLinks: links.length,
+      totalPastes: pastes.length,
+      totalMedia: mediaShares.length,
+      totalClicks,
+      activeLinks: activeLinks.length,
+      activePastes: activePastes.length,
+      activeMedia: activeMedia.length,
+    },
+  }
 }

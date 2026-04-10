@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.0.12",
     "@hookform/resolvers": "^3.9.1",
     "@libsql/client": "^0.17.0",
     "@netlify/blobs": "^10.7.0",

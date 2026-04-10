@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStore } from '@netlify/blobs'
+import { auth } from '@clerk/nextjs/server'
 import { createMediaShare } from '@/lib/api'
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
@@ -47,6 +48,15 @@ export async function POST(request: NextRequest) {
   const customAlias = (formData.get('customAlias') as string | null)?.trim() || undefined
   const expiresAt = (formData.get('expiresAt') as string | null) || undefined
 
+  // Get userId if authenticated
+  let userId: string | null = null
+  try {
+    const { userId: clerkUserId } = await auth()
+    userId = clerkUserId
+  } catch {
+    // Not authenticated
+  }
+
   // Create DB record first to get the shortCode
   const result = await createMediaShare(
     {
@@ -57,7 +67,8 @@ export async function POST(request: NextRequest) {
       customAlias,
       expiresAt,
     },
-    baseUrl
+    baseUrl,
+    userId
   )
 
   if (!result.success || !result.data) {

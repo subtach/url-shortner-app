@@ -7,6 +7,7 @@ export interface ShortenedLink {
   createdAt: string
   expiresAt: string | null
   isExpired: boolean
+  userId?: string | null
 }
 
 export interface ShortenRequest {
@@ -37,6 +38,7 @@ export interface CodePaste {
   createdAt: string
   expiresAt: string | null
   isExpired: boolean
+  userId?: string | null
 }
 
 export interface PasteRequest {
@@ -66,10 +68,26 @@ export interface MediaShare {
   createdAt: string
   expiresAt: string | null
   isExpired: boolean
+  userId?: string | null
 }
 
 export interface MediaShareResponse {
   success: boolean
   data?: MediaShare
   error?: string
+}
+
+export interface DashboardData {
+  links: ShortenedLink[]
+  pastes: CodePaste[]
+  mediaShares: MediaShare[]
+  stats: {
+    totalLinks: number
+    totalPastes: number
+    totalMedia: number
+    totalClicks: number
+    activeLinks: number
+    activePastes: number
+    activeMedia: number
+  }
 }

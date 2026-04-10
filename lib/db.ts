@@ -82,6 +82,17 @@ export async function initDb(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_media_short_code ON media_shares(short_code);
   `)
 
+  // Add user_id column to all tables if it doesn't exist yet.
+  // SQLite doesn't have IF NOT EXISTS for ALTER TABLE, so we catch the error.
+  const tables = ['links', 'code_pastes', 'media_shares']
+  for (const table of tables) {
+    try {
+      await db.execute(`ALTER TABLE ${table} ADD COLUMN user_id TEXT`)
+    } catch {
+      // Column already exists — safe to ignore
+    }
+  }
+
   // Seed sample data only when the table is empty
   const { rows } = await db.execute('SELECT COUNT(*) AS n FROM links')
   if (rowNum(rows[0], 'n') === 0) {
