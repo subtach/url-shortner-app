@@ -1,5 +1,6 @@
 import type { ShortenedLink, ShortenRequest, ShortenResponse, LinksResponse, CodePaste, PasteRequest, PasteResponse, MediaShare, MediaShareResponse, DashboardData } from './types'
 import { getDb, initDb, rowStr, rowStrNull, rowNum } from './db'
+import { hashPassword, verifyPassword } from './crypto'
 import type { Row } from '@libsql/client'
 
 const DEFAULT_BASE_URL = 'http://localhost:3000'
@@ -14,6 +15,7 @@ function rowToLink(row: Row, baseUrl: string): ShortenedLink {
     createdAt: rowStr(row, 'created_at'),
     expiresAt: rowStrNull(row, 'expires_at'),
     isExpired: rowNum(row, 'is_expired') === 1,
+    isPasswordProtected: !!rowStrNull(row, 'password_hash'),
     userId: rowStrNull(row, 'user_id'),
   }
 }
@@ -60,11 +62,12 @@ export async function shortenUrl(
   const shortCode = request.customAlias || generateShortCode()
   const id = String(Date.now())
   const createdAt = new Date().toISOString()
+  const pwHash = request.password ? hashPassword(request.password) : null
 
   await db.execute({
-    sql: `INSERT INTO links (id, original_url, short_code, clicks, created_at, expires_at, is_expired, user_id)
-          VALUES (?, ?, ?, 0, ?, ?, 0, ?)`,
-    args: [id, request.url, shortCode, createdAt, request.expiresAt ?? null, userId ?? null],
+    sql: `INSERT INTO links (id, original_url, short_code, clicks, created_at, expires_at, is_expired, user_id, password_hash)
+          VALUES (?, ?, ?, 0, ?, ?, 0, ?, ?)`,
+    args: [id, request.url, shortCode, createdAt, request.expiresAt ?? null, userId ?? null, pwHash],
   })
 
   const { rows } = await db.execute({
@@ -99,7 +102,7 @@ export async function getLinks(baseUrl: string = DEFAULT_BASE_URL): Promise<Link
  */
 export async function resolveShortCode(
   shortCode: string
-): Promise<{ success: boolean; data?: { originalUrl: string; isExpired: boolean } }> {
+): Promise<{ success: boolean; data?: { originalUrl: string; isExpired: boolean; isPasswordProtected: boolean } }> {
   await initDb()
   const db = getDb()
 
@@ -115,6 +118,15 @@ export async function resolveShortCode(
   const isExpired =
     rowNum(row, 'is_expired') === 1 ||
     (expiresAt ? new Date(expiresAt) < new Date() : false)
+  const isPasswordProtected = !!rowStrNull(row, 'password_hash')
+
+  // If password-protected, don't reveal the URL or increment clicks yet
+  if (isPasswordProtected) {
+    return {
+      success: true,
+      data: { originalUrl: '', isExpired, isPasswordProtected: true },
+    }
+  }
 
   // Increment click count only if not expired
   if (!isExpired) {
@@ -126,7 +138,7 @@ export async function resolveShortCode(
 
   return {
     success: true,
-    data: { originalUrl: rowStr(row, 'original_url'), isExpired },
+    data: { originalUrl: rowStr(row, 'original_url'), isExpired, isPasswordProtected: false },
   }
 }
 
@@ -157,6 +169,7 @@ function rowToPaste(row: import('@libsql/client').Row, baseUrl: string): CodePas
     createdAt: rowStr(row, 'created_at'),
     expiresAt: rowStrNull(row, 'expires_at'),
     isExpired: rowNum(row, 'is_expired') === 1,
+    isPasswordProtected: !!rowStrNull(row, 'password_hash'),
     userId: rowStrNull(row, 'user_id'),
   }
 }
@@ -191,10 +204,11 @@ export async function createPaste(
   const shortCode = request.customAlias || generateShortCode()
   const id = String(Date.now())
   const createdAt = new Date().toISOString()
+  const pwHash = request.password ? hashPassword(request.password) : null
 
   await db.execute({
-    sql: `INSERT INTO code_pastes (id, code, language, short_code, title, clicks, created_at, expires_at, is_expired, user_id)
-          VALUES (?, ?, ?, ?, ?, 0, ?, ?, 0, ?)`,
+    sql: `INSERT INTO code_pastes (id, code, language, short_code, title, clicks, created_at, expires_at, is_expired, user_id, password_hash)
+          VALUES (?, ?, ?, ?, ?, 0, ?, ?, 0, ?, ?)`,
     args: [
       id,
       request.code,
@@ -204,6 +218,7 @@ export async function createPaste(
       createdAt,
       request.expiresAt ?? null,
       userId ?? null,
+      pwHash,
     ],
   })
 
@@ -238,6 +253,13 @@ export async function resolvePasteShortCode(
   const isExpired =
     rowNum(row, 'is_expired') === 1 ||
     (expiresAt ? new Date(expiresAt) < new Date() : false)
+  const isPasswordProtected = !!rowStrNull(row, 'password_hash')
+
+  // If password-protected, return metadata only (no code content)
+  if (isPasswordProtected) {
+    const paste = rowToPaste(row, baseUrl)
+    return { success: true, data: { ...paste, code: '' } }
+  }
 
   if (!isExpired) {
     await db.execute({
@@ -278,6 +300,7 @@ function rowToMedia(row: import('@libsql/client').Row, baseUrl: string): MediaSh
     createdAt: rowStr(row, 'created_at'),
     expiresAt: rowStrNull(row, 'expires_at'),
     isExpired: rowNum(row, 'is_expired') === 1,
+    isPasswordProtected: !!rowStrNull(row, 'password_hash'),
     userId: rowStrNull(row, 'user_id'),
   }
 }
@@ -289,6 +312,7 @@ export interface CreateMediaShareInput {
   title?: string
   customAlias?: string
   expiresAt?: string
+  password?: string
 }
 
 /**
@@ -319,10 +343,11 @@ export async function createMediaShare(
   const shortCode = input.customAlias || generateShortCode()
   const id = String(Date.now())
   const createdAt = new Date().toISOString()
+  const pwHash = input.password ? hashPassword(input.password) : null
 
   await db.execute({
-    sql: `INSERT INTO media_shares (id, filename, mime_type, size_bytes, short_code, title, clicks, created_at, expires_at, is_expired, user_id)
-          VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, 0, ?)`,
+    sql: `INSERT INTO media_shares (id, filename, mime_type, size_bytes, short_code, title, clicks, created_at, expires_at, is_expired, user_id, password_hash)
+          VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?, 0, ?, ?)`,
     args: [
       id,
       input.filename,
@@ -333,6 +358,7 @@ export async function createMediaShare(
       createdAt,
       input.expiresAt ?? null,
       userId ?? null,
+      pwHash,
     ],
   })
 
@@ -366,6 +392,13 @@ export async function resolveMediaShortCode(
   const isExpired =
     rowNum(row, 'is_expired') === 1 ||
     (expiresAt ? new Date(expiresAt) < new Date() : false)
+  const isPasswordProtected = !!rowStrNull(row, 'password_hash')
+
+  // If password-protected, return metadata only (no raw URL)
+  if (isPasswordProtected) {
+    const media = rowToMedia(row, baseUrl)
+    return { success: true, data: { ...media, rawUrl: '' } }
+  }
 
   if (!isExpired) {
     await db.execute({
@@ -385,6 +418,68 @@ export async function deleteMediaShare(id: string): Promise<{ success: boolean }
   const db = getDb()
   await db.execute({ sql: 'DELETE FROM media_shares WHERE id = ?', args: [id] })
   return { success: true }
+}
+
+// ---------------------------------------------------------------------------
+// Password Verification API
+// ---------------------------------------------------------------------------
+
+/**
+ * Verifies a password against a stored hash and returns the protected content.
+ * Increments the click counter on successful verification.
+ */
+export async function verifyContentPassword(
+  shortCode: string,
+  type: 'link' | 'paste' | 'media',
+  password: string,
+  baseUrl: string = DEFAULT_BASE_URL
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
+  await initDb()
+  const db = getDb()
+
+  const tableMap = { link: 'links', paste: 'code_pastes', media: 'media_shares' }
+  const table = tableMap[type]
+
+  const { rows } = await db.execute({
+    sql: `SELECT * FROM ${table} WHERE short_code = ?`,
+    args: [shortCode],
+  })
+
+  if (rows.length === 0) {
+    return { success: false, error: 'Not found' }
+  }
+
+  const row = rows[0]
+  const storedHash = rowStrNull(row, 'password_hash')
+
+  if (!storedHash) {
+    return { success: false, error: 'This content is not password-protected' }
+  }
+
+  if (!verifyPassword(password, storedHash)) {
+    return { success: false, error: 'Incorrect password' }
+  }
+
+  // Password correct — increment clicks and return full content
+  const expiresAt = rowStrNull(row, 'expires_at')
+  const isExpired =
+    rowNum(row, 'is_expired') === 1 ||
+    (expiresAt ? new Date(expiresAt) < new Date() : false)
+
+  if (!isExpired) {
+    await db.execute({
+      sql: `UPDATE ${table} SET clicks = clicks + 1 WHERE short_code = ?`,
+      args: [shortCode],
+    })
+  }
+
+  if (type === 'link') {
+    return { success: true, data: { originalUrl: rowStr(row, 'original_url'), isExpired } }
+  } else if (type === 'paste') {
+    return { success: true, data: rowToPaste(row, baseUrl) }
+  } else {
+    return { success: true, data: rowToMedia(row, baseUrl) }
+  }
 }
 
 // ---------------------------------------------------------------------------

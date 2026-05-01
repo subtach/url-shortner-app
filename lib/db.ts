@@ -93,6 +93,15 @@ export async function initDb(): Promise<void> {
     }
   }
 
+  // Add password_hash column for password-protected sharing
+  for (const table of tables) {
+    try {
+      await db.execute(`ALTER TABLE ${table} ADD COLUMN password_hash TEXT`)
+    } catch {
+      // Column already exists — safe to ignore
+    }
+  }
+
   // Seed sample data only when the table is empty
   const { rows } = await db.execute('SELECT COUNT(*) AS n FROM links')
   if (rowNum(rows[0], 'n') === 0) {

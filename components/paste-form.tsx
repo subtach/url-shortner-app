@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Code2, Zap, Calendar, FileText, Loader2 } from 'lucide-react'
+import { Code2, Zap, Calendar, FileText, Loader2, Lock, Eye, EyeOff } from 'lucide-react'
 import type { CodePaste, PasteResponse } from '@/lib/types'
 
 const LANGUAGES = [
@@ -47,6 +47,8 @@ export function PasteForm({ onSuccess }: PasteFormProps) {
   const [title, setTitle] = useState('')
   const [alias, setAlias] = useState('')
   const [expiresAt, setExpiresAt] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -71,6 +73,7 @@ export function PasteForm({ onSuccess }: PasteFormProps) {
           title: title.trim() || undefined,
           customAlias: alias.trim() || undefined,
           expiresAt: expiresAt || undefined,
+          password: password.trim() || undefined,
         }),
       })
       var response: PasteResponse = await res.json()
@@ -88,6 +91,7 @@ export function PasteForm({ onSuccess }: PasteFormProps) {
       setTitle('')
       setAlias('')
       setExpiresAt('')
+      setPassword('')
       setLanguage('plaintext')
     } else {
       setError(response.error || 'Something went wrong')
@@ -179,6 +183,31 @@ export function PasteForm({ onSuccess }: PasteFormProps) {
             aria-label="Expiry date"
           />
         </div>
+      </div>
+
+      {/* Password Protection */}
+      <div className="relative">
+        <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+          <Lock className="h-4 w-4" />
+        </div>
+        <input
+          type={showPassword ? 'text' : 'password'}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password protect (optional)"
+          className="h-11 w-full rounded-lg border border-border bg-card pl-9 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20 transition-colors"
+          aria-label="Password protection"
+        />
+        {password && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        )}
       </div>
 
       {/* Error */}

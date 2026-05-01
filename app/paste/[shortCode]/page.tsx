@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { headers } from 'next/headers'
 import { Navbar } from '@/components/navbar'
 import { PasteViewer } from '@/components/paste-viewer'
+import { PastePasswordGateWrapper } from '@/components/paste-password-gate-wrapper'
 import { resolvePasteShortCode } from '@/lib/api'
 
 interface PasteViewPageProps {
@@ -35,7 +36,21 @@ export default async function PasteViewPage({ params }: PasteViewPageProps) {
   const result = await resolvePasteShortCode(shortCode, baseUrl)
 
   if (!result.success || !result.data) {
-    notFound()
+    return notFound()
+  }
+
+  const paste = result.data
+
+  // If password-protected, show the gate (code will be empty)
+  if (paste.isPasswordProtected && !paste.code) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex flex-1 flex-col items-center justify-center px-4 py-10">
+          <PastePasswordGateWrapper shortCode={shortCode} />
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -43,7 +58,7 @@ export default async function PasteViewPage({ params }: PasteViewPageProps) {
       <Navbar />
       <main className="flex flex-1 flex-col items-center px-4 py-10">
         <div className="w-full max-w-4xl">
-          <PasteViewer paste={result.data} />
+          <PasteViewer paste={paste} />
         </div>
       </main>
     </div>

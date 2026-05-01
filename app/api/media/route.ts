@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
   const title = (formData.get('title') as string | null)?.trim() || undefined
   const customAlias = (formData.get('customAlias') as string | null)?.trim() || undefined
   const expiresAt = (formData.get('expiresAt') as string | null) || undefined
+  const password = (formData.get('password') as string | null)?.trim() || undefined
 
   // Get userId if authenticated
   let userId: string | null = null
@@ -66,6 +67,7 @@ export async function POST(request: NextRequest) {
       title,
       customAlias,
       expiresAt,
+      password,
     },
     baseUrl,
     userId

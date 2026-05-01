@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ExternalLink, QrCode, Eye } from 'lucide-react'
+import { ExternalLink, QrCode, Eye, Lock } from 'lucide-react'
 import { CopyButton } from './copy-button'
 import { QRCodeModal } from './qr-code-modal'
 import type { CodePaste } from '@/lib/types'
@@ -26,8 +26,16 @@ export function PasteResultCard({ paste }: PasteResultCardProps) {
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             Your paste link is ready
           </span>
-          <span className="ml-auto rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold text-primary">
-            {langLabel}
+          <span className="ml-auto flex items-center gap-1">
+            {paste.isPasswordProtected && (
+              <span className="flex items-center gap-1 rounded-full bg-highlight/15 px-2 py-0.5 text-[11px] font-semibold text-highlight mr-1">
+                <Lock className="h-3 w-3" />
+                Protected
+              </span>
+            )}
+            <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold text-primary">
+              {langLabel}
+            </span>
           </span>
         </div>
 

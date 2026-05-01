@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { QrCode, Calendar, ExternalLink } from 'lucide-react'
+import { QrCode, Calendar, ExternalLink, Lock } from 'lucide-react'
 import { CopyButton } from './copy-button'
 import { QRCodeModal } from './qr-code-modal'
 import type { ShortenedLink } from '@/lib/types'
@@ -23,6 +23,12 @@ export function ResultCard({ link }: ResultCardProps) {
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             Your short link is ready
           </span>
+          {link.isPasswordProtected && (
+            <span className="ml-auto flex items-center gap-1 rounded-full bg-highlight/15 px-2 py-0.5 text-[11px] font-semibold text-highlight">
+              <Lock className="h-3 w-3" />
+              Protected
+            </span>
+          )}
         </div>
 
         <p className="mb-3 text-lg font-bold text-foreground break-all">

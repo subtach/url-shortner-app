@@ -7,7 +7,7 @@ import type { ShortenedLink, CodePaste, MediaShare, DashboardData } from '@/lib/
 import {
   Link2, Code2, ImageIcon, Loader2, Trash2,
   BarChart3, MousePointerClick, ExternalLink,
-  Copy, Check, TrendingUp, Calendar, Clock
+  Copy, Check, TrendingUp, Calendar, Clock, Lock
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -244,6 +244,7 @@ export default function DashboardPage() {
                       createdAt={link.createdAt}
                       expiresAt={link.expiresAt}
                       isExpired={link.isExpired}
+                      isPasswordProtected={link.isPasswordProtected}
                       shortUrl={link.shortUrl}
                       onDelete={() => handleDelete(link.id, 'links')}
                       onCopy={() => handleCopy(link.shortUrl, link.id)}
@@ -271,6 +272,7 @@ export default function DashboardPage() {
                       createdAt={paste.createdAt}
                       expiresAt={paste.expiresAt}
                       isExpired={paste.isExpired}
+                      isPasswordProtected={paste.isPasswordProtected}
                       shortUrl={paste.shortUrl}
                       onDelete={() => handleDelete(paste.id, 'pastes')}
                       onCopy={() => handleCopy(paste.shortUrl, paste.id)}
@@ -299,6 +301,7 @@ export default function DashboardPage() {
                       createdAt={media.createdAt}
                       expiresAt={media.expiresAt}
                       isExpired={media.isExpired}
+                      isPasswordProtected={media.isPasswordProtected}
                       shortUrl={media.shortUrl}
                       onDelete={() => handleDelete(media.id, 'media')}
                       onCopy={() => handleCopy(media.shortUrl, media.id)}
@@ -388,7 +391,7 @@ function ContentSection<T>({ items, renderItem, emptyText, emptyIcon, emptyHref,
 
 function ItemCard({
   id, title, subtitle, clicks, createdAt, expiresAt, isExpired,
-  shortUrl, onDelete, onCopy, isCopied, formatRelative, formatDate, badge,
+  isPasswordProtected, shortUrl, onDelete, onCopy, isCopied, formatRelative, formatDate, badge,
 }: {
   id: string
   title: string
@@ -397,6 +400,7 @@ function ItemCard({
   createdAt: string
   expiresAt: string | null
   isExpired: boolean
+  isPasswordProtected?: boolean
   shortUrl: string
   onDelete: () => void
   onCopy: () => void
@@ -418,6 +422,12 @@ function ItemCard({
             {isExpired && (
               <span className="inline-flex items-center rounded-md bg-expired/15 px-2 py-0.5 text-[10px] font-bold text-expired uppercase tracking-wide">
                 Expired
+              </span>
+            )}
+            {isPasswordProtected && !isExpired && (
+              <span className="inline-flex items-center gap-0.5 rounded-md bg-highlight/15 px-2 py-0.5 text-[10px] font-bold text-highlight uppercase tracking-wide">
+                <Lock className="h-2.5 w-2.5" />
+                Protected
               </span>
             )}
             {badge && !isExpired && (

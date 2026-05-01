@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { headers } from 'next/headers'
 import { Navbar } from '@/components/navbar'
 import { MediaViewer } from '@/components/media-viewer'
+import { MediaPasswordGateWrapper } from '@/components/media-password-gate-wrapper'
 import { resolveMediaShortCode } from '@/lib/api'
 
 interface MediaViewPageProps {
@@ -35,7 +36,21 @@ export default async function MediaViewPage({ params }: MediaViewPageProps) {
   const result = await resolveMediaShortCode(shortCode, baseUrl)
 
   if (!result.success || !result.data) {
-    notFound()
+    return notFound()
+  }
+
+  const media = result.data
+
+  // If password-protected, show the gate (rawUrl will be empty)
+  if (media.isPasswordProtected && !media.rawUrl) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex flex-1 flex-col items-center justify-center px-4 py-10">
+          <MediaPasswordGateWrapper shortCode={shortCode} />
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -43,7 +58,7 @@ export default async function MediaViewPage({ params }: MediaViewPageProps) {
       <Navbar />
       <main className="flex flex-1 flex-col items-center px-4 py-10">
         <div className="w-full max-w-4xl">
-          <MediaViewer media={result.data} />
+          <MediaViewer media={media} />
         </div>
       </main>
     </div>

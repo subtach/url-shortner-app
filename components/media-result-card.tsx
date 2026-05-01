@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ExternalLink, QrCode, Eye, ImageIcon } from 'lucide-react'
+import { ExternalLink, QrCode, Eye, ImageIcon, Lock } from 'lucide-react'
 import { CopyButton } from './copy-button'
 import { QRCodeModal } from './qr-code-modal'
 import type { MediaShare } from '@/lib/types'
@@ -30,9 +30,17 @@ export function MediaResultCard({ media }: MediaResultCardProps) {
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             Your media link is ready
           </span>
-          <span className="ml-auto flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold text-primary">
-            <ImageIcon className="h-3 w-3" />
-            {formatBytes(media.sizeBytes)}
+          <span className="ml-auto flex items-center gap-1">
+            {media.isPasswordProtected && (
+              <span className="flex items-center gap-1 rounded-full bg-highlight/15 px-2 py-0.5 text-[11px] font-semibold text-highlight mr-1">
+                <Lock className="h-3 w-3" />
+                Protected
+              </span>
+            )}
+            <span className="flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold text-primary">
+              <ImageIcon className="h-3 w-3" />
+              {formatBytes(media.sizeBytes)}
+            </span>
           </span>
         </div>
 

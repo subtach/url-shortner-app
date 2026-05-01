@@ -7,6 +7,7 @@ export interface ShortenedLink {
   createdAt: string
   expiresAt: string | null
   isExpired: boolean
+  isPasswordProtected: boolean
   userId?: string | null
 }
 
@@ -14,6 +15,7 @@ export interface ShortenRequest {
   url: string
   customAlias?: string
   expiresAt?: string
+  password?: string
 }
 
 export interface ShortenResponse {
@@ -38,6 +40,7 @@ export interface CodePaste {
   createdAt: string
   expiresAt: string | null
   isExpired: boolean
+  isPasswordProtected: boolean
   userId?: string | null
 }
 
@@ -47,6 +50,7 @@ export interface PasteRequest {
   title?: string
   customAlias?: string
   expiresAt?: string
+  password?: string
 }
 
 export interface PasteResponse {
@@ -68,6 +72,7 @@ export interface MediaShare {
   createdAt: string
   expiresAt: string | null
   isExpired: boolean
+  isPasswordProtected: boolean
   userId?: string | null
 }
 
